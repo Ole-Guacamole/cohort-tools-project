@@ -1,14 +1,9 @@
 const express = require("express");
 const router = express.Router();
-
-const mongoose = require("mongoose");
-
 const Student = require("../models/Student.model");
-// STUDENTS ROUTES
 
 // POST /api/students - Creates a new student
-
-router.post("/students", (req, res) => {
+router.post("/students", (req, res, next) => {
   Student.create({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
@@ -28,13 +23,14 @@ router.post("/students", (req, res) => {
     })
     .catch((error) => {
       console.error("Error while creating student ->", error);
-      res.status(500).json({ error: "Failed to create student" });
+      error.message = "Failed to create student";
+      error.status = 500;
+      next(error);
     });
 });
 
 // GET /api/students - Retrieves all of the students in the database collection
-
-router.get("/students", (req, res) => {
+router.get("/students", (req, res, next) => {
   Student.find({})
     .populate("cohort")
     .then((students) => {
@@ -43,13 +39,14 @@ router.get("/students", (req, res) => {
     })
     .catch((error) => {
       console.error("Error while retrieving students ->", error);
-      res.status(500).json({ error: "Failed to retrieve students" });
+      error.message = "Failed to retrieve students";
+      error.status = 500;
+      next(error);
     });
 });
 
 // GET /api/students/cohort/:cohortId - Retrieves all of the students for a given cohort
-
-router.get("/students/cohort/:cohortId", (req, res) => {
+router.get("/students/cohort/:cohortId", (req, res, next) => {
   const cohortId = req.params.cohortId;
 
   Student.find({ cohort: cohortId })
@@ -60,13 +57,14 @@ router.get("/students/cohort/:cohortId", (req, res) => {
     })
     .catch((error) => {
       console.error("Error while retrieving students for cohort ->", error);
-      res.status(500).json({ error: "Failed to retrieve students for cohort" });
+      error.message = "Failed to retrieve students for cohort";
+      error.status = 500;
+      next(error);
     });
 });
 
 // GET /api/students/:studentId - Retrieves a specific student by id
-
-router.get("/students/:studentId", (req, res) => {
+router.get("/students/:studentId", (req, res, next) => {
   const studentId = req.params.studentId;
 
   Student.findById(studentId)
@@ -76,43 +74,54 @@ router.get("/students/:studentId", (req, res) => {
         console.log("Retrieved student ->", student);
         res.json(student);
       } else {
-        res.status(404).json({ error: "Student not found" });
+        const error = new Error("Student not found");
+        error.status = 404;
+        next(error);
       }
     })
     .catch((error) => {
       console.error("Error while retrieving student ->", error);
-      res.status(500).json({ error: "Failed to retrieve student" });
+      error.message = "Failed to retrieve student";
+      error.status = 500;
+      next(error);
     });
 });
 
 // PUT /api/students/:studentId - Updates a specific student by id
-
-router.put("/students/:studentId", (req, res) => {
+router.put("/students/:studentId", (req, res, next) => {
   const studentId = req.params.studentId;
 
   Student.findByIdAndUpdate(studentId, req.body, { new: true })
     .then((updatedStudent) => {
       console.log("Updated student ->", updatedStudent);
-
       res.status(204).json(updatedStudent);
     })
     .catch((error) => {
       console.error("Error while updating student ->", error);
-      res.status(500).json({ error: "Failed to update student" });
+      error.message = "Failed to update student";
+      error.status = 500;
+      next(error);
     });
 });
 
 // DELETE /api/students/:studentId - Deletes a specific student by id
-
-router.delete("/students/:studentId", (req, res) => {
+router.delete("/students/:studentId", (req, res, next) => {
   Student.findByIdAndDelete(req.params.studentId)
     .then((result) => {
-      console.log("Student deleted!");
-      res.status(204).send();
+      if (result) {
+        console.log("Student deleted!");
+        res.status(204).send();
+      } else {
+        const error = new Error("Student not found");
+        error.status = 404;
+        next(error);
+      }
     })
     .catch((error) => {
       console.error("Error while deleting Student ->", error);
-      res.status(500).json({ error: "Deleting Student failed" });
+      error.message = "Deleting Student failed";
+      error.status = 500;
+      next(error);
     });
 });
 
