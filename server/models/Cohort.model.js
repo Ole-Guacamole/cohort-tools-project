@@ -10,7 +10,7 @@ const cohortSchema = new Schema({
 
   program: {
     type: String,
-   
+
     enum: ["Web Dev", "UX/UI", "Data Analytics", "Cybersecurity"],
   },
 
@@ -18,19 +18,28 @@ const cohortSchema = new Schema({
 
   campus: {
     type: String,
-   
-    enum: ["Barcelona", "Berlin", "Paris", "Miami", "Madrid", "Amsterdam", "Lisbon", "Remote"  ],
+
+    enum: [
+      "Barcelona",
+      "Berlin",
+      "Paris",
+      "Miami",
+      "Madrid",
+      "Amsterdam",
+      "Lisbon",
+      "Remote",
+    ],
   },
 
   startDate: { type: Date, default: Date.now },
 
-  endDate: { type: Date, default: Date.now},
+  endDate: { type: Date, default: Date.now },
 
   inProgress: Boolean,
 
-  programManager: { type: String, },
+  programManager: { type: String },
 
-  leadTeacher: { type: String, },
+  leadTeacher: { type: String },
 
   totalHours: { type: Number, min: 0, default: 0 },
 });
