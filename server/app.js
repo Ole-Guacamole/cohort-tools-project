@@ -7,6 +7,9 @@ require("./db");
 // Handles http requests (express is node js framework)
 const express = require("express");
 
+// Imports the middleware that checks if the user is authenticated
+const { isAuthenticated } = require("./middleware/jwt.middleware"); 
+
 // INITIALIZE EXPRESS APP
 const app = express();
 
@@ -19,10 +22,15 @@ const allRoutes = require("./routes/index.routes");
 app.use("/api", allRoutes);
 
 const studentRouter = require("./routes/student.routes"); // <== IMPORT
-app.use("/api", studentRouter); // <== ADD
+app.use("/api", studentRouter); // 
 
 const cohortRouter = require("./routes/cohort.routes"); // <== IMPORT
-app.use("/api", cohortRouter); // <== ADD
+app.use("/api", cohortRouter); //
+const authRouter = require("./routes/auth.routes");
+app.use("/auth", authRouter);
+
+const userRouter = require("./routes/user.routes"); // <== IMPORT
+app.use("/api", isAuthenticated, userRouter); 
 
 app.get("/docs", (req, res) => {
   res.sendFile(__dirname + "/views/docs.html");
